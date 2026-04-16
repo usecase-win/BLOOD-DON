@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Donation History</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+  <div class="page-header">
+    <h1>📜 Donation History</h1>
+    <p>Complete record of all blood donations made</p>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h2>📋 All Donation Records</h2>
+      <div id="history-list"><p class="empty">Loading...</p></div>
+    </div>
+  </div>
+
+  <footer>Blood Donation Management System</footer>
+  <script src="nav.js"></script>
+  <script>
+    async function loadHistory() {
+      const r = await fetch('/donation-history');
+      const d = await r.json();
+      const rows = (d.history||[]).map((h,i) => `<tr>
+        <td>${i+1}</td>
+        <td>${h.donor_name}</td>
+        <td><span class="bg-badge">${h.bloodGroup}</span></td>
+        <td>${h.units}</td>
+        <td>${h.bank_name||'—'}</td>
+        <td>${h.donation_date ? h.donation_date.split('T')[0] : '—'}</td>
+        <td>${h.notes||'—'}</td>
+      </tr>`);
+      document.getElementById('history-list').innerHTML =
+        makeTable(['#','Donor','Blood Group','Units','Blood Bank','Date','Notes'], rows, 'No donation history found.');
+    }
+    loadHistory();
+  </script>
+</body>
+</html>

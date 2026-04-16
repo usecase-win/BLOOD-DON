@@ -1,0 +1,14 @@
+{
+  "name": "blood-donation-system-v2",
+  "version": "2.0.0",
+  "description": "Blood Donation Management System - DBMS + Web Technologies Mini Project",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql2": "^3.6.0",
+    "cors": "^2.8.5"
+  }
+}

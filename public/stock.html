@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blood Stock</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+  <div class="page-header">
+    <h1>🏦 Blood Stock & Inventory</h1>
+    <p>Check blood availability across all blood banks</p>
+  </div>
+
+  <div class="container">
+
+    <div class="card">
+      <h2>🔍 Filter by City</h2>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <input type="text" id="s-city" placeholder="Enter city..." style="flex:1;min-width:200px"/>
+        <button class="btn btn-secondary btn-sm" onclick="loadStock()">Search</button>
+        <button class="btn btn-sm" style="background:#eee;color:#333" onclick="document.getElementById('s-city').value='';loadStock()">Show All</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📊 Blood Stock</h2>
+      <div id="stock-list"><p class="empty">Loading...</p></div>
+    </div>
+
+    <div class="card">
+      <h2>🏦 Blood Banks</h2>
+      <div id="banks-list"><p class="empty">Loading...</p></div>
+    </div>
+
+  </div>
+
+  <footer>Blood Donation Management System</footer>
+  <script src="nav.js"></script>
+  <script>
+    async function loadStock() {
+      const city = document.getElementById('s-city').value;
+      const r = await fetch('/blood-stock?city=' + encodeURIComponent(city));
+      const d = await r.json();
+      const rows = (d.stock||[]).map((s,i) => {
+        const level = s.units >= 10 ? 'badge-green' : s.units >= 5 ? 'badge-orange' : 'badge-red';
+        return `<tr>
+          <td>${i+1}</td>
+          <td>${s.bank_name}</td>
+          <td>${s.city}</td>
+          <td><span class="bg-badge">${s.bloodGroup}</span></td>
+          <td><span class="badge ${level}">${s.units} units</span></td>
+        </tr>`;
+      });
+      document.getElementById('stock-list').innerHTML =
+        makeTable(['#','Blood Bank','City','Blood Group','Stock'], rows, 'No stock data found.');
+    }
+
+    async function loadBanks() {
+      const r = await fetch('/all-blood-banks');
+      const d = await r.json();
+      const rows = (d.bloodBanks||[]).map((b,i) => `<tr>
+        <td>${i+1}</td>
+        <td>${b.name}</td>
+        <td>${b.city}</td>
+        <td>${b.address}</td>
+        <td>${b.contact}</td>
+        <td>${b.timings||'—'}</td>
+      </tr>`);
+      document.getElementById('banks-list').innerHTML =
+        makeTable(['#','Name','City','Address','Contact','Timings'], rows, 'No blood banks found.');
+    }
+
+    loadStock();
+    loadBanks();
+  </script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Volunteers</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+  <div class="page-header">
+    <h1>🙋 Volunteers</h1>
+    <p>Join our team and help save more lives</p>
+  </div>
+
+  <div class="container">
+    <div class="two-col">
+
+      <div class="card">
+        <h2>✍️ Register as Volunteer</h2>
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="name" placeholder="Your name"/>
+        </div>
+        <div class="form-group">
+          <label>City *</label>
+          <input type="text" id="city" placeholder="Your city"/>
+        </div>
+        <div class="form-group">
+          <label>Contact *</label>
+          <input type="text" id="contact" placeholder="Mobile number"/>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="email" placeholder="Optional"/>
+        </div>
+        <div class="form-group">
+          <label>Skills / Availability</label>
+          <textarea id="skills" placeholder="e.g. First Aid, Driving, Event Management"></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="addVolunteer()">Register</button>
+        <div class="msg" id="vol-msg"></div>
+      </div>
+
+      <div class="card">
+        <h2>👥 Our Volunteers</h2>
+        <div id="vol-list"><p class="empty">Loading...</p></div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>Blood Donation Management System</footer>
+  <script src="nav.js"></script>
+  <script>
+    async function addVolunteer() {
+      const body = {
+        name:    document.getElementById('name').value.trim(),
+        city:    document.getElementById('city').value.trim(),
+        contact: document.getElementById('contact').value.trim(),
+        email:   document.getElementById('email').value.trim(),
+        skills:  document.getElementById('skills').value.trim()
+      };
+      if (!body.name||!body.city||!body.contact)
+        return showMsg('vol-msg','Please fill all required fields.','error');
+      const r = await fetch('/add-volunteer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const d = await r.json();
+      showMsg('vol-msg', d.message, d.success?'success':'error');
+      if (d.success) { ['name','city','contact','email','skills'].forEach(id=>document.getElementById(id).value=''); loadVolunteers(); }
+    }
+
+    async function loadVolunteers() {
+      const r = await fetch('/all-volunteers');
+      const d = await r.json();
+      const rows = (d.volunteers||[]).map((v,i) => `<tr>
+        <td>${i+1}</td>
+        <td>${v.name}</td>
+        <td>${v.city}</td>
+        <td>${v.contact}</td>
+        <td>${v.email||'—'}</td>
+        <td>${v.skills||'—'}</td>
+      </tr>`);
+      document.getElementById('vol-list').innerHTML =
+        makeTable(['#','Name','City','Contact','Email','Skills'], rows, 'No volunteers yet.');
+    }
+
+    loadVolunteers();
+  </script>
+</body>
+</html>

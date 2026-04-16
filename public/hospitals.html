@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hospitals</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+  <div class="page-header">
+    <h1>🏥 Hospitals</h1>
+    <p>List of partner hospitals in the network</p>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h2>🏥 All Hospitals</h2>
+      <div id="hospital-list"><p class="empty">Loading...</p></div>
+    </div>
+  </div>
+
+  <footer>Blood Donation Management System</footer>
+  <script src="nav.js"></script>
+  <script>
+    async function loadHospitals() {
+      const r = await fetch('/all-hospitals');
+      const d = await r.json();
+      const rows = (d.hospitals||[]).map((h,i) => `<tr>
+        <td>${i+1}</td>
+        <td>${h.name}</td>
+        <td>${h.city}</td>
+        <td>${h.address}</td>
+        <td>${h.contact}</td>
+        <td>${h.email||'—'}</td>
+      </tr>`);
+      document.getElementById('hospital-list').innerHTML =
+        makeTable(['#','Name','City','Address','Contact','Email'], rows, 'No hospitals found.');
+    }
+    loadHospitals();
+  </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blood Donation Management System</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="page-header">
+    <h1>🩸 Blood Donation Management System</h1>
+    <p>Connecting donors with those in need — saving lives every day</p>
+  </div>
+
+  <div class="container">
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="number" id="stat-donors">—</div>
+        <div class="label">Registered Donors</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="stat-requests">—</div>
+        <div class="label">Pending Requests</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="stat-camps">—</div>
+        <div class="label">Upcoming Camps</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="stat-volunteers">—</div>
+        <div class="label">Volunteers</div>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="card">
+      <h2>Quick Access</h2>
+      <div class="quick-grid">
+        <a href="/donors" class="quick-card">
+          <div class="icon">🩸</div>
+          <div class="title">Donors</div>
+          <div class="desc">Register & search donors</div>
+        </a>
+        <a href="/requests" class="quick-card">
+          <div class="icon">📋</div>
+          <div class="title">Blood Requests</div>
+          <div class="desc">Request blood urgently</div>
+        </a>
+        <a href="/stock" class="quick-card">
+          <div class="icon">🏦</div>
+          <div class="title">Blood Stock</div>
+          <div class="desc">Check availability</div>
+        </a>
+        <a href="/hospitals" class="quick-card">
+          <div class="icon">🏥</div>
+          <div class="title">Hospitals</div>
+          <div class="desc">Find nearby hospitals</div>
+        </a>
+        <a href="/camps" class="quick-card">
+          <div class="icon">⛺</div>
+          <div class="title">Donation Camps</div>
+          <div class="desc">Upcoming events</div>
+        </a>
+        <a href="/volunteers" class="quick-card">
+          <div class="icon">🙋</div>
+          <div class="title">Volunteers</div>
+          <div class="desc">Join as a volunteer</div>
+        </a>
+        <a href="/feedback" class="quick-card">
+          <div class="icon">💬</div>
+          <div class="title">Feedback</div>
+          <div class="desc">Share your experience</div>
+        </a>
+        <a href="/history" class="quick-card">
+          <div class="icon">📜</div>
+          <div class="title">History</div>
+          <div class="desc">Past donations</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="card">
+      <h2>About This Project</h2>
+      <p style="font-size:14px;line-height:1.8;color:#555;">
+        This Blood Donation Management System is a full-stack mini project built using
+        <strong>HTML, CSS, JavaScript</strong> (Frontend),
+        <strong>Node.js + Express</strong> (Backend), and
+        <strong>MySQL</strong> (Database). It manages 10 database tables covering donors,
+        blood banks, hospitals, blood requests, stock, donation history, volunteers, camps,
+        feedback, and admin users — demonstrating core DBMS concepts like primary keys,
+        foreign keys, joins, constraints, and CRUD operations.
+      </p>
+    </div>
+
+  </div>
+
+  <footer>Blood Donation Management System &mdash; DBMS + Web Technologies Mini Project</footer>
+
+  <script src="nav.js"></script>
+  <script>
+    fetch('/dashboard-stats')
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('stat-donors').textContent    = data.stats.donors;
+          document.getElementById('stat-requests').textContent  = data.stats.requests;
+          document.getElementById('stat-camps').textContent     = data.stats.camps;
+          document.getElementById('stat-volunteers').textContent= data.stats.volunteers;
+        }
+      }).catch(() => {});
+  </script>
+</body>
+</html>

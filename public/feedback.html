@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Feedback</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+  <div class="page-header">
+    <h1>💬 Feedback</h1>
+    <p>Share your experience and help us improve</p>
+  </div>
+
+  <div class="container">
+    <div class="two-col">
+
+      <div class="card">
+        <h2>✍️ Submit Feedback</h2>
+        <div class="form-group">
+          <label>Your Name *</label>
+          <input type="text" id="name" placeholder="Your name"/>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="email" placeholder="Optional"/>
+        </div>
+        <div class="form-group">
+          <label>Rating</label>
+          <select id="rating">
+            <option value="">-- Select Rating --</option>
+            <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+            <option value="4">⭐⭐⭐⭐ Good</option>
+            <option value="3">⭐⭐⭐ Average</option>
+            <option value="2">⭐⭐ Poor</option>
+            <option value="1">⭐ Very Poor</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Message *</label>
+          <textarea id="message" placeholder="Write your feedback here..."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="submitFeedback()">Submit Feedback</button>
+        <div class="msg" id="fb-msg"></div>
+      </div>
+
+      <div class="card">
+        <h2>💭 User Feedback</h2>
+        <div id="fb-list"><p class="empty">Loading...</p></div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>Blood Donation Management System</footer>
+  <script src="nav.js"></script>
+  <script>
+    async function submitFeedback() {
+      const body = {
+        name:    document.getElementById('name').value.trim(),
+        email:   document.getElementById('email').value.trim(),
+        rating:  document.getElementById('rating').value,
+        message: document.getElementById('message').value.trim()
+      };
+      if (!body.name||!body.message)
+        return showMsg('fb-msg','Name and message are required.','error');
+      const r = await fetch('/add-feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const d = await r.json();
+      showMsg('fb-msg', d.message, d.success?'success':'error');
+      if (d.success) { ['name','email','message'].forEach(id=>document.getElementById(id).value=''); document.getElementById('rating').value=''; loadFeedback(); }
+    }
+
+    async function loadFeedback() {
+      const r = await fetch('/all-feedback');
+      const d = await r.json();
+      const stars = n => n ? '⭐'.repeat(n) : '—';
+      const rows = (d.feedback||[]).map((f,i) => `<tr>
+        <td>${i+1}</td>
+        <td>${f.name}</td>
+        <td>${f.message}</td>
+        <td><span class="stars">${stars(f.rating)}</span></td>
+        <td>${f.created_at ? f.created_at.split('T')[0] : '—'}</td>
+      </tr>`);
+      document.getElementById('fb-list').innerHTML =
+        makeTable(['#','Name','Message','Rating','Date'], rows, 'No feedback yet.');
+    }
+
+    loadFeedback();
+  </script>
+</body>
+</html>

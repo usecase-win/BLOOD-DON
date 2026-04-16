@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Donation Camps</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+  <div class="page-header">
+    <h1>⛺ Donation Camps & Events</h1>
+    <p>Upcoming blood donation drives near you</p>
+  </div>
+
+  <div class="container">
+    <div class="two-col">
+
+      <div class="card">
+        <h2>➕ Add New Camp</h2>
+        <div class="form-group">
+          <label>Camp Title *</label>
+          <input type="text" id="title" placeholder="e.g. Save a Life Drive"/>
+        </div>
+        <div class="form-group">
+          <label>City *</label>
+          <input type="text" id="city" placeholder="City"/>
+        </div>
+        <div class="form-group">
+          <label>Venue *</label>
+          <input type="text" id="venue" placeholder="Full venue address"/>
+        </div>
+        <div class="form-group">
+          <label>Date *</label>
+          <input type="date" id="camp_date"/>
+        </div>
+        <div class="form-group">
+          <label>Organizer</label>
+          <input type="text" id="organizer" placeholder="Organization name"/>
+        </div>
+        <div class="form-group">
+          <label>Contact</label>
+          <input type="text" id="contact" placeholder="Contact number"/>
+        </div>
+        <button class="btn btn-primary" onclick="addCamp()">Add Camp</button>
+        <div class="msg" id="camp-msg"></div>
+      </div>
+
+      <div class="card">
+        <h2>📅 Upcoming Camps</h2>
+        <div id="camp-list"><p class="empty">Loading...</p></div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>Blood Donation Management System</footer>
+  <script src="nav.js"></script>
+  <script>
+    async function addCamp() {
+      const body = {
+        title:     document.getElementById('title').value.trim(),
+        city:      document.getElementById('city').value.trim(),
+        venue:     document.getElementById('venue').value.trim(),
+        camp_date: document.getElementById('camp_date').value,
+        organizer: document.getElementById('organizer').value.trim(),
+        contact:   document.getElementById('contact').value.trim()
+      };
+      if (!body.title||!body.city||!body.venue||!body.camp_date)
+        return showMsg('camp-msg','Please fill all required fields.','error');
+      const r = await fetch('/add-camp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const d = await r.json();
+      showMsg('camp-msg', d.message, d.success?'success':'error');
+      if (d.success) loadCamps();
+    }
+
+    async function loadCamps() {
+      const r = await fetch('/all-camps');
+      const d = await r.json();
+      const rows = (d.camps||[]).map((c,i) => `<tr>
+        <td>${i+1}</td>
+        <td>${c.title}</td>
+        <td>${c.city}</td>
+        <td>${c.venue}</td>
+        <td>${c.camp_date ? c.camp_date.split('T')[0] : '—'}</td>
+        <td>${c.organizer||'—'}</td>
+        <td>${c.contact||'—'}</td>
+      </tr>`);
+      document.getElementById('camp-list').innerHTML =
+        makeTable(['#','Title','City','Venue','Date','Organizer','Contact'], rows, 'No camps found.');
+    }
+
+    loadCamps();
+  </script>
+</body>
+</html>

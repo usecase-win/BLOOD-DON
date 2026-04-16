@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blood Requests</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+  <div class="page-header">
+    <h1>📋 Blood Requests</h1>
+    <p>Submit an urgent blood request or view existing requests</p>
+  </div>
+
+  <div class="container">
+    <div class="two-col">
+
+      <div class="card">
+        <h2>🆘 Submit Blood Request</h2>
+        <div class="form-group">
+          <label>Patient Name *</label>
+          <input type="text" id="pname" placeholder="Patient's full name"/>
+        </div>
+        <div class="form-group">
+          <label>Blood Group Required *</label>
+          <select id="bg">
+            <option value="">-- Select --</option>
+            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Units Needed *</label>
+          <input type="number" id="units" placeholder="e.g. 2" min="1"/>
+        </div>
+        <div class="form-group">
+          <label>Hospital</label>
+          <select id="hospital">
+            <option value="">-- Select Hospital (optional) --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>City *</label>
+          <input type="text" id="city" placeholder="City"/>
+        </div>
+        <div class="form-group">
+          <label>Contact *</label>
+          <input type="text" id="contact" placeholder="Contact number"/>
+        </div>
+        <button class="btn btn-primary" onclick="submitRequest()">Submit Request</button>
+        <div class="msg" id="req-msg"></div>
+      </div>
+
+      <div class="card">
+        <h2>📄 All Blood Requests</h2>
+        <div id="req-list"><p class="empty">Loading...</p></div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>Blood Donation Management System</footer>
+  <script src="nav.js"></script>
+  <script>
+    async function loadHospitals() {
+      const r = await fetch('/all-hospitals');
+      const d = await r.json();
+      const sel = document.getElementById('hospital');
+      (d.hospitals||[]).forEach(h => {
+        const opt = document.createElement('option');
+        opt.value = h.id; opt.textContent = h.name + ' — ' + h.city;
+        sel.appendChild(opt);
+      });
+    }
+
+    async function submitRequest() {
+      const body = {
+        patient_name: document.getElementById('pname').value.trim(),
+        bloodGroup:   document.getElementById('bg').value,
+        units:        document.getElementById('units').value,
+        hospital_id:  document.getElementById('hospital').value || null,
+        city:         document.getElementById('city').value.trim(),
+        contact:      document.getElementById('contact').value.trim()
+      };
+      if (!body.patient_name||!body.bloodGroup||!body.units||!body.city||!body.contact)
+        return showMsg('req-msg','Please fill all required fields.','error');
+      const r = await fetch('/add-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const d = await r.json();
+      showMsg('req-msg', d.message, d.success?'success':'error');
+      if (d.success) loadRequests();
+    }
+
+    async function loadRequests() {
+      const r = await fetch('/all-requests');
+      const d = await r.json();
+      const statusColors = { Pending:'badge-orange', Fulfilled:'badge-green', Cancelled:'badge-gray' };
+      const rows = (d.requests||[]).map((req,i) => `<tr>
+        <td>${i+1}</td>
+        <td>${req.patient_name}</td>
+        <td><span class="bg-badge">${req.bloodGroup}</span></td>
+        <td>${req.units}</td>
+        <td>${req.hospital_name||'—'}</td>
+        <td>${req.city}</td>
+        <td><span class="badge ${statusColors[req.status]||'badge-gray'}">${req.status}</span></td>
+      </tr>`);
+      document.getElementById('req-list').innerHTML =
+        makeTable(['#','Patient','Blood','Units','Hospital','City','Status'], rows, 'No requests yet.');
+    }
+
+    loadHospitals();
+    loadRequests();
+  </script>
+</body>
+</html>
